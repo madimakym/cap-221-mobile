@@ -26,9 +26,7 @@ const monthList = [
   "décembre"
 ];
 
-late String wpay = "https://wpay.wizall.com";
-String wpay2 = "http://10.0.15.40:8083";
-// String wpay = "http://10.0.15.40:8083";
+late String wpay = "https://demo.kimekoif.com";
 String gateway = "https://factures.wizall.com";
 String notification = "https://notifications.wizall.com";
 

@@ -1,10 +1,17 @@
+import 'dart:convert';
+
+import 'package:cap221_app/features/auth/register/register_2_page.dart';
 import 'package:cap221_app/features/paiement/paiement_confirm.dart';
 import 'package:cap221_app/features/paiement/paiement_init.dart';
 import 'package:cap221_app/utils/app_colors.dart';
 import 'package:cap221_app/utils/validations.dart';
 import 'package:cap221_app/widgets/custom_auth_input.dart';
 import 'package:cap221_app/widgets/custom_button.dart';
+import 'package:cap221_app/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import '../repository/auth_repository.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -32,6 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool isActivated = true;
   bool isSetPin = true;
   bool show = false;
+  final _authRepository = AuthRepository();
   dynamic _selectedValue;
 
   @override
@@ -56,17 +64,17 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 100),
+                const SizedBox(height: 40),
                 const Text("Créez votre compte",
                     style: TextStyle(
                         color: AppColors.black,
                         fontSize: 40.0,
                         fontWeight: FontWeight.w800)),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 const Text(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                    "Vous êtes 3.765.923 de jeunes garçons et filles hors main d’œuvre potentielle et inactifs. Aidez nous à vous recenser et à vous orienter.",
                     style: TextStyle(color: AppColors.black, fontSize: 16)),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 Form(
                   key: formKey,
                   child: Column(
@@ -77,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: false,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _firstnameCtlr),
                       CustomAuthInput(
@@ -86,16 +94,16 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: false,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _lastnameCtlr),
                       CustomAuthInput(
                           labelText: "Numéro de téléphone",
                           obscureText: false,
                           textInputType: TextInputType.text,
-                          isNumeric: false,
+                          isNumeric: true,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _phoneCtlr),
                       CustomAuthInput(
@@ -104,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: true,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _oldCtlr),
                       CustomAuthInput(
@@ -113,13 +121,14 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: false,
                           readOnly: false,
-                          bottomMargin: 20.0,
-                          validator: validations.validateInput,
+                          bottomMargin: 15.0,
+                          validator: validations.validateInputEmail,
                           controller: _emailCtlr),
-                      const Text("Genre:",
-                          style: TextStyle(color: Colors.grey, fontSize: 18.0)),
                       Row(
                         children: <Widget>[
+                          const Text("Genre:",
+                              style: TextStyle(
+                                  color: Colors.grey, fontSize: 18.0)),
                           Expanded(
                             child: RadioListTile(
                               title: const Text('Homme'),
@@ -148,7 +157,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: false,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _passwordCtlr),
                       CustomAuthInput(
@@ -157,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputType: TextInputType.text,
                           isNumeric: false,
                           readOnly: false,
-                          bottomMargin: 20.0,
+                          bottomMargin: 15.0,
                           validator: validations.validateInput,
                           controller: _passwordConfirmCtlr),
                       const SizedBox(height: 20),
@@ -178,30 +187,55 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future _handleCheckStatus(context) async {
-    paiementInit(context).then((value) {
-      paiementConfirm(context).then((value) {});
-      // print("value: $value");
-      // setState(() => _secteurCtlr.text = value);
-    });
-
-    // final form = formKey.currentState;
-    // FocusScope.of(context).requestFocus(FocusNode());
-    // String data = jsonEncode({
-    //   "firstname": _firstnameCtlr.text,
-    //   "lastname": _lastnameCtlr.text,
-    //   "email": _emailCtlr.text,
-    //   "age": _oldCtlr.text,
-    //   "password": _passwordCtlr.text,
-    //   "genre": _selectedValue,
-    // });
-    // if (form!.validate()) {
-
-    //   // Navigator.push(
-    //   //   context,
-    //   //   MaterialPageRoute(builder: (context) => Register2Page(user: data)),
-    //   // );
-    // } else {
-    //   autovalidate = true;
-    // }
+    if (_passwordCtlr.text != _passwordConfirmCtlr.text) {
+      dialogError(context,
+          code: "fomulaire",
+          color: AppColors.red,
+          message: "Les mots de passe doivent être les mêmes!");
+      autovalidate = true;
+    } else {
+      final form = formKey.currentState;
+      FocusScope.of(context).requestFocus(FocusNode());
+      String data = jsonEncode({
+        "firstname": _firstnameCtlr.text,
+        "lastname": _lastnameCtlr.text,
+        "phone": _phoneCtlr.text,
+        "email": _emailCtlr.text,
+        "age": _oldCtlr.text,
+        "password": _passwordCtlr.text,
+        "passwordConfirm": _passwordConfirmCtlr.text,
+        "genre": _selectedValue,
+      });
+      if (form!.validate()) {
+        try {
+          EasyLoading.show(status: 'Chargement...');
+          var response = await _authRepository.checkUser(data);
+          EasyLoading.dismiss();
+          if (response['status'] == 200) {
+            dialogError(context,
+                code: "Inscription",
+                message: "L'utilisateur à déjà un compte !",
+                color: AppColors.danger);
+          }
+        } catch (error) {
+          error as Map;
+          EasyLoading.dismiss();
+          if (error['code'].toString() == "406") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Register2Page(user: data)),
+            );
+          } else {
+            dialogError(context,
+                code: error['code'].toString(),
+                message: error['message'] ?? "erreur lors de l'inscription",
+                color: AppColors.danger);
+          }
+        }
+      } else {
+        autovalidate = true;
+      }
+    }
   }
 }

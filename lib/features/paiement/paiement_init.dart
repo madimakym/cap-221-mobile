@@ -55,7 +55,7 @@ paiementInit(BuildContext context) async {
                           labelText: "Numéro de téléphone",
                           obscureText: false,
                           textInputType: TextInputType.text,
-                          isNumeric: false,
+                          isNumeric: true,
                           readOnly: false,
                           bottomMargin: 20.0,
                           validator: validations.validateInput,

@@ -1,4 +1,3 @@
-
 class Validations {
   String? validateEmail(value) {
     if (value.isEmpty) return 'Email requis!';
@@ -17,6 +16,12 @@ class Validations {
 
   String? validateInput(value) {
     if ((value == null) || (value.isEmpty)) return 'Champs réquis!';
+    return null;
+  }
+
+  String? validateInputEmail(value) {
+    if ((value == null) || (value.isEmpty)) return 'Champs réquis!';
+    if (!value.contains("@")) return 'email non valide!';
     return null;
   }
 
