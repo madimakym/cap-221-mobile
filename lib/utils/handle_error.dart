@@ -12,11 +12,11 @@ class DioExceptions implements Exception {
         case 400:
         case 401:
         case 403:
+        case 406:
           return throw ({
             "code": dioError.response!.statusCode.toString(),
-            "error": dioError.response.data['error'] ??
-                dioError.response.data['message'] ??
-                dioError.response.data['MESSAGE']
+            "error": dioError.response.data['error'],
+            "message": dioError.response.data['message']
           });
         case 404:
           return throw ({
@@ -35,8 +35,8 @@ class DioExceptions implements Exception {
         default:
           return throw ({
             "code": dioError.response!.statusCode.toString(),
-            "error":
-                "Problème de connexion, veuillez vérifier votre connexion internet puis réessayer"
+            "error": dioError.response.data['error'],
+            "message": dioError.response.data['message']
           });
       }
     } else {

@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="cap221_app"
+        android:label="Cap 221"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

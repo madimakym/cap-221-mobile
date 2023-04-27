@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:cap221_app/features/auth/register/register_page.dart';
+import 'package:cap221_app/features/auth/repository/auth_repository.dart';
+import 'package:cap221_app/features/home/home_page.dart';
 import 'package:cap221_app/utils/app_colors.dart';
 import 'package:cap221_app/utils/global_vars.dart';
 import 'package:cap221_app/utils/validations.dart';
@@ -23,9 +25,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   Validations validations = Validations();
-  late final TextEditingController _phoneCtlr = TextEditingController();
-  late final TextEditingController _countryCtlr = TextEditingController();
-  // final _authRepository = AuthRepository();
+  late final TextEditingController _emailCtlr = TextEditingController();
+  late final TextEditingController _pwdCtlr = TextEditingController();
+  final _authRepository = AuthRepository();
 
   FocusNode phoneNode = FocusNode();
   FocusNode pinFocus = FocusNode();
@@ -82,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                           readOnly: false,
                           bottomMargin: 20.0,
                           validator: validations.validateInput,
-                          controller: _phoneCtlr),
+                          controller: _emailCtlr),
                       const SizedBox(height: 20),
                       CustomAuthInput(
                           labelText: "Tapez votre mot de passe",
@@ -92,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                           readOnly: false,
                           bottomMargin: 20.0,
                           validator: validations.validateInput,
-                          controller: _phoneCtlr),
+                          controller: _pwdCtlr),
                       const SizedBox(height: 20),
                       CustomButton(
                         title: "Valider",
@@ -132,13 +134,26 @@ class _LoginPageState extends State<LoginPage> {
     final form = formKey.currentState;
     FocusScope.of(context).requestFocus(FocusNode());
     String data =
-        jsonEncode({"msisdn": _phoneCtlr.text, "country": _countryId});
+        jsonEncode({"email": _emailCtlr.text, "password": _pwdCtlr.text});
+
     if (form!.validate()) {
-      EasyLoading.show(status: 'Chargement...');
-      // var response = await _authRepository.checkStatus(data);
-      // var responseQrcode = await _authRepository.getQrcodeToken(data);
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setString('qrcode', responseQrcode['token']);
+      try {
+        EasyLoading.show(status: 'Chargement...');
+        var response = await _authRepository.login(data);
+        print("response: $response");
+        EasyLoading.dismiss();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } catch (error) {
+        EasyLoading.dismiss();
+        error as Map;
+        dialogError(context,
+            code: error['code'].toString(),
+            message: error['message'],
+            color: AppColors.danger);
+      }
     } else {
       autovalidate = true;
     }

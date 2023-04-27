@@ -221,7 +221,6 @@ class _Register2PageState extends State<Register2Page> {
                           ),
                         ),
                         onTap: () {
-                          print(_selectedMetier);
                           if (_selectedMetier != null) {
                             selectDialogMetier(context,
                                     "Sélèctionner un metier", _selectedMetier)
@@ -335,7 +334,6 @@ class _Register2PageState extends State<Register2Page> {
       } catch (error) {
         error as Map;
         EasyLoading.dismiss();
-        print(error);
         dialogError(context,
             code: error['code'].toString(),
             message: error['message'] ??
@@ -353,8 +351,6 @@ class _Register2PageState extends State<Register2Page> {
   }
 
   askForOtp(number, response, context) async {
-    print("value: $number");
-    print("value: ${response["access_token"]}");
     String dataForOtp = jsonEncode({
       "msisdn": "$number",
       "merchant_msisdn": "777314929",
@@ -374,7 +370,6 @@ class _Register2PageState extends State<Register2Page> {
     } catch (error) {
       error as Map;
       EasyLoading.dismiss();
-      print(error);
       dialogError(context,
           code: error['code'].toString(),
           message: error['message'] ??

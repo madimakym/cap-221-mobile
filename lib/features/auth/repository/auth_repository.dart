@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cap221_app/utils/global_vars.dart';
 import 'package:cap221_app/utils/handle_error.dart';
 import 'package:dio/dio.dart';
@@ -120,6 +118,48 @@ class AuthRepository {
   Future inscription(data) async {
     try {
       var url = '$wpay/api/v1/auth/register/';
+      if (kDebugMode) {
+        print('post: endpoint: $url, data: $data');
+        print('Token: $wpayToken');
+      }
+      var response = await Dio().post(url,
+          data: data,
+          options: Options(
+            headers: {"Content-Type": "application/json"},
+          ));
+      if (kDebugMode) {
+        print("response: ${response.data}");
+      }
+      return response.data;
+    } on DioError catch (e) {
+      return throw DioExceptions().fromDioError(e);
+    }
+  }
+
+  Future login(data) async {
+    try {
+      var url = '$wpay/api/v1/auth/login';
+      if (kDebugMode) {
+        print('post: endpoint: $url, data: $data');
+        print('Token: $wpayToken');
+      }
+      var response = await Dio().post(url,
+          data: data,
+          options: Options(
+            headers: {"Content-Type": "application/json"},
+          ));
+      if (kDebugMode) {
+        print("response: ${response.data}");
+      }
+      return response.data;
+    } on DioError catch (e) {
+      return throw DioExceptions().fromDioError(e);
+    }
+  }
+
+  Future fetchToken(data) async {
+    try {
+      var url = '$wpay/api/v1/auth/';
       if (kDebugMode) {
         print('post: endpoint: $url, data: $data');
         print('Token: $wpayToken');
