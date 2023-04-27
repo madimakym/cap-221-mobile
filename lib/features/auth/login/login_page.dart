@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cap221_app/features/auth/register/register_page.dart';
 import 'package:cap221_app/features/auth/repository/auth_repository.dart';
 import 'package:cap221_app/features/home/home_page.dart';
@@ -41,11 +40,28 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    checkIfIsLog();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  checkIfIsLog() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("token");
+    var user = prefs.getString("user");
+    if (user != null && token != null) {
+      getCat();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(
+              url: '/wp-json/wp/v2/posts?per_page=100', title: "CAP 221"),
+        ),
+      );
+    }
   }
 
   @override
@@ -67,8 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                         fontSize: 40.0,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(height: 20),
-                const Text(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                const Text("Notre objectif: Un metier pour tous !",
                     style: TextStyle(color: AppColors.black, fontSize: 16),
                     textAlign: TextAlign.start),
                 const SizedBox(height: 40),
@@ -130,6 +145,20 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  getCat() async {
+    try {
+      var responseCat = await _authRepository.getCatHasArticle();
+      existArticle = responseCat;
+    } catch (error) {
+      EasyLoading.dismiss();
+      /* error as Map;
+      dialogError(context,
+          code: error['code'].toString(),
+          message: error['message'],
+          color: AppColors.danger);*/
+    }
+  }
+
   Future _handleCheckStatus(context) async {
     final form = formKey.currentState;
     FocusScope.of(context).requestFocus(FocusNode());
@@ -140,12 +169,30 @@ class _LoginPageState extends State<LoginPage> {
       try {
         EasyLoading.show(status: 'Chargement...');
         var response = await _authRepository.login(data);
-        print("response: $response");
         EasyLoading.dismiss();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', jsonEncode(response));
+        try {
+          var responseUser = await _authRepository.checkUser(data);
+          currentUser = responseUser['message'];
+          prefs.setString('user', jsonEncode(responseUser['message']));
+          getCat();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      url: '/wp-json/wp/v2/posts?per_page=20',
+                      title: 'CAP 221',
+                    )),
+          );
+        } catch (error) {
+          EasyLoading.dismiss();
+          error as Map;
+          dialogError(context,
+              code: error['code'].toString(),
+              message: error['message'],
+              color: AppColors.danger);
+        }
       } catch (error) {
         EasyLoading.dismiss();
         error as Map;

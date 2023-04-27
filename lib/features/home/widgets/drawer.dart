@@ -1,7 +1,11 @@
+import 'package:cap221_app/features/auth/login/login_page.dart';
+import 'package:cap221_app/features/home/home_page.dart';
 import 'package:cap221_app/features/home/widgets/drawer_item.dart';
 import 'package:cap221_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../utils/global_vars.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -19,42 +23,73 @@ class CustomDrawer extends StatelessWidget {
               decoration: const BoxDecoration(color: AppColors.primary),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
+                children: [
+                  const Icon(
                     Icons.account_circle,
                     color: Colors.white,
                     size: 80,
                   ),
                   Text(
-                    "ssss",
-                    style: TextStyle(
+                    "${currentUser["lastname"]}",
+                    style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         fontSize: 20),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    "rrrr",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+                    "${currentUser["firstname"]}",
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
                   ),
                 ],
               ),
             ),
             buildDrawerItem(
-                libelle: "Mon compte",
-                icon: Icons.account_circle_outlined,
+                libelle: "TOUS LES ARTICLE (${totalArticle.toInt()})",
+                icon: Icons.select_all,
                 context: context,
-                onTap: () => {Navigator.pushNamed(context, "/profile")}),
+                onTap: () => {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(
+                              url: "/wp-json/wp/v2/posts?&per_page=100",
+                              title: 'CAP 221',
+                            ),
+                          ),
+                          (route) => false)
+                    }),
+            for (var item in (existArticle))
+              buildDrawerItem(
+                  libelle: "${item["name"]}".toUpperCase(),
+                  count: "${item["count"]}",
+                  icon: Icons.article,
+                  context: context,
+                  onTap: () => {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(
+                                url:
+                                    "/wp-json/wp/v2/posts?categories=${item["id"]}&per_page=20",
+                                title: '${item["name"]}'.toUpperCase(),
+                              ),
+                            ),
+                            (route) => false)
+                      }),
             buildDrawerItem(
-                libelle: "Transaction en attente",
-                icon: Icons.warning,
+                libelle: "Déconnexion",
+                icon: Icons.logout,
                 context: context,
-                onTap: null),
-            buildDrawerItem(
-                libelle: "Service Client",
-                icon: Icons.info,
-                context: context,
-                onTap: () => {}),
+                onTap: () => {
+                      logout().then((value) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
+                            (route) => false);
+                      })
+                    }),
           ],
         ),
       ),

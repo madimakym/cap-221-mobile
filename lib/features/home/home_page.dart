@@ -1,8 +1,16 @@
 import 'package:cap221_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_html/flutter_html.dart';
+import '../../utils/global_vars.dart';
+import '../../widgets/custom_dialog.dart';
+import 'repository/article_repository.dart';
+import 'widgets/drawer.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String url;
+  final String title;
+  const HomePage({super.key, required this.url, required this.title});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -10,11 +18,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
+  final _articlesRepository = ArticleRepository();
+  dynamic listArticle = [];
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getArticles();
   }
 
   @override
@@ -25,32 +41,23 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.primary,
         title: InkWell(
           onTap: () => setState(() {}),
-          child: const Text("CAP 221",
-              style: TextStyle(color: Colors.white, fontSize: 23)),
+          child: Text(widget.title,
+              style: const TextStyle(color: Colors.white, fontSize: 23)),
         ),
         elevation: 0.0,
       ),
       body: ListView(
         children: [
-          _buildNewsItem(
-              'https://www.ucad.sn/sites/default/files/articles/5Q5A7997.jpg',
-              "Signature de convention entre  l’UCAD et l'Université de Douala.",
-              " La salle des Actes du Rectorat a abrité ce mercredi 25 janvier , une signature de convention entre  l’Université Cheikh Anta Diop de Dakar et l'Université de Douala. Les deux parties ont longuement échangé sur la convention liant les deux universités."),
-          _buildNewsItem(
-              'https://img-0.journaldunet.com/Env4W_FEQYR_edOaX7jJrk7kcGo=/1500x/smart/2816456362b344cca0be0476b18ef59d/ccmcms-jdn/34122968.jpg',
-              'Comment scaler une IA ?',
-              "L'industrialisation du machine learning implique à la fois un outillage et de la méthode. Le point sur la démarche à mettre en œuvre en six étapes clés."),
-          _buildNewsItem(
-              'https://inseps.ucad.sn/sites/default/files/ibcdame.jpg',
-              'UCAD/SC BASKETBALL',
-              "L'UCAD/SC est en plein tournoi de monté chez les hommes. Tout commes leurs homologues dames de qui ont reussi à jouer en D1 la saison 2020-2021, les hommes vont tenter le tout pour le tout pour accéder en première division sénégalaise."),
-          _buildNewsItem(
-              'https://www.ucad.sn/sites/default/files/articles/carte%20invitation-6.jpg',
-              'FST célébre la Journée Internationale des Mathématiques',
-              "Le Département de Mathématiques-informatique de la faculté des Sciences et Techniques organise la Journée Internationale des Mathématiques le 14 mars 2023 à partir de 8h30 à l'amphi 7 de ladite faculté."),
+          for (var item in (listArticle))
+            _buildNewsItem(
+              'https://cap221.com/assets/img/cap221-logo.png',
+              "${item['title']['rendered']}",
+              Html(data: item['excerpt']['rendered']),
+            ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      drawer: const CustomDrawer(),
+      /*bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -68,11 +75,33 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: AppColors.primary,
         onTap: _onItemTapped,
-      ),
+      ),*/
     );
   }
 
-  Widget _buildNewsItem(String imageUrl, String title, String description) {
+  getArticles() async {
+    EasyLoading.show(status: 'Chargement...');
+    try {
+      var response = await _articlesRepository.getArticle(widget.url);
+      if (widget.url == '/wp-json/wp/v2/posts?per_page=100') {
+        totalArticle = response.length;
+        print("on verifie le tout $totalArticle");
+      }
+      setState(() {
+        listArticle = response;
+      });
+      EasyLoading.dismiss();
+    } catch (error) {
+      EasyLoading.dismiss();
+      error as Map;
+      dialogError(context,
+          code: error['code'].toString(),
+          message: error['message'],
+          color: AppColors.danger);
+    }
+  }
+
+  Widget _buildNewsItem(String imageUrl, String title, dynamic description) {
     return Card(
       margin: const EdgeInsets.all(16),
       child: Column(
@@ -92,12 +121,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
+                description,
               ],
             ),
           ),

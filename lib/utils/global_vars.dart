@@ -3,6 +3,8 @@ String country = "sn";
 late String newToken;
 late String clientId;
 var currentUser;
+var existArticle;
+var totalArticle = 0;
 late int finalVersionInt;
 String currentVersion = "";
 String currentBuildNumber = "";
@@ -27,8 +29,8 @@ const monthList = [
 ];
 
 // String wpay = "http://localhost:8001";
-String wpay = "https://demo.kimekoif.com";
-String gateway = "https://factures.wizall.com";
+String wpay = "https://api.cap221.com";
+String gateway = "https://www.blog.cap221.com";
 String notification = "https://notifications.wizall.com";
 
 bool get isTestAPI {

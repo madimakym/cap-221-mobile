@@ -177,4 +177,23 @@ class AuthRepository {
       return throw DioExceptions().fromDioError(e);
     }
   }
+
+  Future getCatHasArticle() async {
+    try {
+      var url = '$gateway/wp-json/wp/v2/categories?hide_empty=true&exclude=1';
+      if (kDebugMode) {
+        print('post: endpoint: $url,');
+      }
+      var response = await Dio().get(url,
+          options: Options(
+            headers: {"Content-Type": "application/json"},
+          ));
+      if (kDebugMode) {
+        print("response: ${response.data}");
+      }
+      return response.data;
+    } on DioError catch (e) {
+      return throw DioExceptions().fromDioError(e);
+    }
+  }
 }
