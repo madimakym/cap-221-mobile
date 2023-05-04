@@ -22,4 +22,23 @@ class ArticleRepository {
       return throw DioExceptions().fromDioError(e);
     }
   }
+
+  Future getArticleById(urls) async {
+    try {
+      var url = '$gateway/$urls';
+      if (kDebugMode) {
+        print('post: endpoint: $url,');
+      }
+      var response = await Dio().get(url,
+          options: Options(
+            headers: {"Content-Type": "application/json"},
+          ));
+      if (kDebugMode) {
+        print("response: ${response.data}");
+      }
+      return response.data;
+    } on DioError catch (e) {
+      return throw DioExceptions().fromDioError(e);
+    }
+  }
 }

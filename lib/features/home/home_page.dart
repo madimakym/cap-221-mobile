@@ -1,3 +1,4 @@
+import 'package:cap221_app/features/home/detail_article_page.dart';
 import 'package:cap221_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -42,7 +43,7 @@ class _HomePageState extends State<HomePage> {
         title: InkWell(
           onTap: () => setState(() {}),
           child: Text(widget.title,
-              style: const TextStyle(color: Colors.white, fontSize: 23)),
+              style: const TextStyle(color: Colors.white, fontSize: 15)),
         ),
         elevation: 0.0,
       ),
@@ -50,10 +51,11 @@ class _HomePageState extends State<HomePage> {
         children: [
           for (var item in (listArticle))
             _buildNewsItem(
-              'https://cap221.com/assets/img/cap221-logo.png',
-              "${item['title']['rendered']}",
-              Html(data: item['excerpt']['rendered']),
-            ),
+                "${item['id']}",
+                'https://cap221.com/assets/img/cap221-logo.png',
+                "${item['title']['rendered']}",
+                Html(data: item['excerpt']['rendered']),
+                context),
         ],
       ),
       drawer: const CustomDrawer(),
@@ -101,32 +103,46 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildNewsItem(String imageUrl, String title, dynamic description) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Image.network(imageUrl, fit: BoxFit.cover, height: 200),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+  Widget _buildNewsItem(
+      id, String imageUrl, String title, dynamic description, context) {
+    return InkWell(
+      child: Card(
+        margin: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Image.network(imageUrl, fit: BoxFit.cover, height: 200),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                description,
-              ],
+                  const SizedBox(height: 8),
+                  description,
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailArticlePage(
+              url: id,
+              title: title,
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

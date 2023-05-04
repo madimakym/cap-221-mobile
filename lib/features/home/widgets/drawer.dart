@@ -20,6 +20,7 @@ class CustomDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
+              margin: const EdgeInsets.only(bottom: 0.0),
               decoration: const BoxDecoration(color: AppColors.primary),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -45,7 +46,7 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             buildDrawerItem(
-                libelle: "TOUS LES ARTICLE (${totalArticle.toInt()})",
+                libelle: "TOUS LES ARTICLES",
                 icon: Icons.select_all,
                 context: context,
                 onTap: () => {

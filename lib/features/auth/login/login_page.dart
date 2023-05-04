@@ -13,6 +13,7 @@ import 'package:cap221_app/utils/validations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -40,28 +41,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    checkIfIsLog();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  checkIfIsLog() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString("token");
-    var user = prefs.getString("user");
-    if (user != null && token != null) {
-      getCat();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(
-              url: '/wp-json/wp/v2/posts?per_page=100', title: "CAP 221"),
-        ),
-      );
-    }
   }
 
   @override
@@ -76,14 +60,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 180),
+                const SizedBox(height: 150),
                 const Text("Connexion",
                     style: TextStyle(
                         color: AppColors.black,
                         fontSize: 40.0,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(height: 20),
-                const Text("Notre objectif: Un metier pour tous !",
+                const Text("Notre objectif: Un métier pour tous !",
                     style: TextStyle(color: AppColors.black, fontSize: 16),
                     textAlign: TextAlign.start),
                 const SizedBox(height: 40),
@@ -110,7 +94,23 @@ class _LoginPageState extends State<LoginPage> {
                           bottomMargin: 20.0,
                           validator: validations.validateInput,
                           controller: _pwdCtlr),
-                      const SizedBox(height: 20),
+                      InkWell(
+                        onTap: () => _launchInWebViewOrVC(Uri.parse(
+                            "https://cap221.com/send-reset-password")),
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 0.0),
+                          width: double.infinity,
+                          child: const Text(
+                            "Mot de passe  oublié ?",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
                       CustomButton(
                         title: "Valider",
                         onPress: () => _handleCheckStatus(context),
@@ -143,6 +143,14 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _launchInWebViewOrVC(Uri url) async {
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw Exception('Could not launch $url');
+    }
   }
 
   getCat() async {

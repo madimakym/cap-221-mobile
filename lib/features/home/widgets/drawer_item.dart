@@ -12,7 +12,7 @@ Widget buildDrawerItem(
     leading: Icon(icon, color: Colors.black),
     title: Text(
       "$libelle ${count == "0" ? "" : "($count)"}",
-      style: const TextStyle(color: Colors.black, fontSize: 15),
+      style: const TextStyle(color: Colors.black, fontSize: 12),
     ),
     onTap: onTap,
   );
